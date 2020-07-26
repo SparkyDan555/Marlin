@@ -161,7 +161,6 @@ typedef struct {
   uint8_t waitEndMoves;
   uint16_t moveSpeed;
   float move_dist;
-  uint8_t	F[4];
 } UI_CFG;
 
 typedef enum {
