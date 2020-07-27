@@ -93,7 +93,9 @@
 // LCD / Controller
 //
 #if HAS_SPI_LCD
-  #define BEEPER_PIN                       P1_30  // (37) not 5V tolerant
+  #ifndef BEEPER_PIN
+    #define BEEPER_PIN                       P1_30  // (37) not 5V tolerant
+  #endif
 #endif
 
 //
@@ -113,5 +115,11 @@
   #define MOSI_PIN                         P0_09
   #define SS_PIN               ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "No custom SD drive cable defined for this board."
+  #undef SD_DETECT_PIN
+  #define SD_DETECT_PIN                    P0_27
+  #define SCK_PIN                          P0_07
+  #define MISO_PIN                         P0_08
+  #define MOSI_PIN                         P0_09
+  #define SS_PIN               ONBOARD_SD_CS_PIN
+  //#error "No custom SD drive cable defined for this board."
 #endif

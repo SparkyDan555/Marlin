@@ -24,6 +24,12 @@
 #define BOARD_INFO_NAME "BTT SKR V1.4 TURBO"
 #define SKR_HAS_LPC1769
 
+#define I2C_EEPROM
+#ifdef E2END
+   #undef E2END
+#endif
+#define E2END 0x7FFF // EEPROM end address AT24C256 (32kB)
+
 //
 // Include SKR 1.4 pins
 //
