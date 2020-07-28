@@ -233,7 +233,8 @@
   #define SD_DETECT_PIN                     PB5
   #define SS_PIN                            PA10
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "SD CUSTOM_CABLE is not compatible with SKR Mini E3."
+  #define SD_DETECT_PIN                     PC4
+  //#error "SD CUSTOM_CABLE is not compatible with SKR Mini E3."
 #endif
 
 #ifndef SD_DETECT_PIN
