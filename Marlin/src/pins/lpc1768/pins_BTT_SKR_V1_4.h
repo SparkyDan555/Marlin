@@ -250,7 +250,7 @@
     #define LCD_PINS_ENABLE                P1_18
     #define LCD_PINS_D4                    P1_20
 
-    #define BEEPER_PIN                     P1_23
+    #define BEEPER_PIN                     P0_28
 
   #elif ENABLED(ENDER2_STOCKDISPLAY)
 
