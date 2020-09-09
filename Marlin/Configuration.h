@@ -2379,7 +2379,7 @@
   //#define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
 
   // Support for second Adafruit NeoPixel LED driver controlled with M150 S1 ...
-  //#define NEOPIXEL2_SEPARATE
+  #define NEOPIXEL2_SEPARATE
   #if ENABLED(NEOPIXEL2_SEPARATE)
     #define NEOPIXEL2_PIXELS      4  // Number of LEDs in the second strip
     #define NEOPIXEL2_BRIGHTNESS 255  // Initial brightness (0-255)
