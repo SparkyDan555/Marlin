@@ -489,11 +489,19 @@
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
-  // A10M [@thinkyhead]
-  #define DEFAULT_Kp 68.00
-  #define DEFAULT_Ki 7.48
-  #define DEFAULT_Kd 154.58
 
+
+  #if ENABLED(PID_PARAMS_PER_HOTEND)
+    // Specify between 1 and HOTENDS values per array.
+    // If fewer than EXTRUDER values are provided, the last element will be repeated.
+    #define DEFAULT_Kp_LIST {  22.20,  20.0 }
+    #define DEFAULT_Ki_LIST {   1.08,   1.0 }
+    #define DEFAULT_Kd_LIST { 114.00, 112.0 }
+  #else
+    // A10M [@thinkyhead]
+    #define DEFAULT_Kp 68.00
+    #define DEFAULT_Ki 7.48
+    #define DEFAULT_Kd 154.58
 #endif // PIDTEMP
 
 //===========================================================================
@@ -2160,6 +2168,9 @@
 // Touch-screen LCD for Malyan M200/M300 printers
 //
 //#define MALYAN_LCD
+#if ENABLED(MALYAN_LCD)
+  #define LCD_SERIAL_PORT 1  // Default is 1 for Malyan M200
+#endif
 
 //
 // Touch UI for FTDI EVE (FT800/FT810) displays
@@ -2173,7 +2184,7 @@
 //#define ANYCUBIC_LCD_I3MEGA
 //#define ANYCUBIC_LCD_CHIRON
 #if EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
-  #define ANYCUBIC_LCD_SERIAL_PORT 3
+  #define LCD_SERIAL_PORT 3  // Default is 3 for Anycubic
   //#define ANYCUBIC_LCD_DEBUG
 #endif
 
