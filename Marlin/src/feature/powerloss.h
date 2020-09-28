@@ -58,7 +58,7 @@ typedef struct {
 
   uint16_t feedrate;
 
-  #if HAS_MULTI_EXTRUDER
+  #if EXTRUDERS > 1
     uint8_t active_extruder;
   #endif
 

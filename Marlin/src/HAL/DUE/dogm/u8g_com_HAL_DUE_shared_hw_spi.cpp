@@ -59,7 +59,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_MARLINUI_U8GLIB
+#if HAS_GRAPHICAL_LCD
 
 #include <U8glib.h>
 
@@ -145,6 +145,6 @@ uint8_t u8g_com_HAL_DUE_shared_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
   return 1;
 }
 
-#endif // HAS_MARLINUI_U8GLIB
+#endif // HAS_GRAPHICAL_LCD
 
 #endif // __SAM3X8E__
