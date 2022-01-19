@@ -41,7 +41,7 @@
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
-  //#define I2C_EEPROM                            // EEPROM on I2C-0
+  #define I2C_EEPROM                            // EEPROM on I2C-0
   //#define SDCARD_EEPROM_EMULATION
 #endif
 
@@ -286,7 +286,7 @@
 #elif HAS_WIRED_LCD
 
   #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
-    #error "CAUTION! ANET_FULL_GRAPHICS_LCD_ALT_WIRING requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. Comment out this line to continue."
+    //#error "CAUTION! ANET_FULL_GRAPHICS_LCD_ALT_WIRING requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. Comment out this line to continue."
 
     /**
      * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
@@ -315,7 +315,7 @@
 
     #define LCD_PINS_ENABLE          EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
-    #define BEEPER_PIN               EXP1_03_PIN
+    #define BEEPER_PIN               EXP1_09_PIN
 
   #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
     #error "CAUTION! ANET_FULL_GRAPHICS_LCD requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. Comment out this line to continue."
