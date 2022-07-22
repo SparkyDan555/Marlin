@@ -315,9 +315,9 @@
     #define BTN_EN2                  EXP1_07_PIN
     #define BTN_ENC                  EXP1_01_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
-    #define LCD_PINS_D4              EXP1_06_PIN
-    #define BEEPER_PIN               EXP1_09_PIN
+    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_D4              EXP1_05_PIN
+    #define BEEPER_PIN               EXP1_02_PIN
 
   #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
     #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
