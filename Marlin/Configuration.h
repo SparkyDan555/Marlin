@@ -1840,7 +1840,7 @@
   #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
   //#define WATCH_ALL_RUNOUT_SENSORS      // Execute runout script on any triggering sensor, not only for the active extruder.
-                                          // This is automatically enabled for MIXING_EXTRUDERs.
+                                          // This is automatically enabled for MIXING_EXTRUDERs. (Commented out in Conditionals_adv.h for Printer 1 Build)
 
   // Override individually if the runout sensors vary
   //#define FIL_RUNOUT1_STATE LOW

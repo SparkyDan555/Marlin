@@ -791,7 +791,7 @@
     #define HAS_FILAMENT_RUNOUT_DISTANCE 1
   #endif
   #if ENABLED(MIXING_EXTRUDER)
-    #define WATCH_ALL_RUNOUT_SENSORS
+    //#define WATCH_ALL_RUNOUT_SENSORS
   #endif
 #endif
 
