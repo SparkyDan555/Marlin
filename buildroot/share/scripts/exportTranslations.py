@@ -119,10 +119,10 @@ for langfile in langfiles:
                 multiline = int(multimatch.group(1))
                 value = '|' + re.sub(r'"\s*,\s*"', '|', multimatch.group(2))
 
+            # Wrap inline defines in parentheses
+            value = re.sub(r' *([A-Z0-9]+_[A-Z0-9_]+) *', r'(\1)', value)
             # Remove quotes around strings
             value = re.sub(r'"(.*?)"', r'\1', value).replace('__Q__', '"')
-            # Wrap inline defines in parentheses
-            value = re.sub(r' ?([A-Z0-9]_[A-Z0-9_]{4,}) ?', r'(\1)', value)
             # Store all unique names as dictionary keys
             names[name] = 1
             # Store the string as narrow or wide
