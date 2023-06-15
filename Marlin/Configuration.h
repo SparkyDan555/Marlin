@@ -2695,7 +2695,7 @@
 // Tone queue size, used to keep beeps from blocking execution.
 // Default is 4, or override here. Costs 4 bytes of SRAM per entry.
 //
-//#define TONE_QUEUE_LENGTH 4
+#define TONE_QUEUE_LENGTH 10
 
 //
 // A sequence of tones to play at startup, in pairs of tone (Hz), duration (ms).
