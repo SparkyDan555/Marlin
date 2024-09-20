@@ -112,6 +112,7 @@ namespace LanguageNarrow_pl {
   LSTR MSG_EXTRUDE                        = _UxGT("Ekstruzja");
   LSTR MSG_RETRACT                        = _UxGT("Wycofanie");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Ruch osi");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Sonda/poziomowanie");
   LSTR MSG_BED_LEVELING                   = _UxGT("Poziomowanie stołu");
   LSTR MSG_LEVEL_BED                      = _UxGT("Wypoziomuj stół");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Narożniki poziomowania");
@@ -143,13 +144,10 @@ namespace LanguageNarrow_pl {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Zmierz");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Usuń & Zmierz Stół");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Przesuwanie do następnego");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Aktywacja UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Dezaktywacja UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Temperatura stołu");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Temperatura stołu");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Temperatura dyszy");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Temperatura dyszy");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Edycja siatki");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Edycja własnej siatki");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Dostrajanie siatki");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Koniec edycji siati");
@@ -239,14 +237,9 @@ namespace LanguageNarrow_pl {
   LSTR MSG_MOVE_E                         = _UxGT("Ekstruzja (os E)");
   LSTR MSG_MOVE_EN                        = _UxGT("Ekstruzja (os E) *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Dysza za zimna");
-  LSTR MSG_MOVE_N_MM                      = _UxGT("Przesuń co $ mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Przesuń co .1 mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Przesuń co 1 mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Przesuń co 10 mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Przesuń co 100 mm");
-  LSTR MSG_MOVE_0001IN                    = _UxGT("Przesuń co 0.001 cala");
-  LSTR MSG_MOVE_001IN                     = _UxGT("Przesuń co 0.01 cala");
-  LSTR MSG_MOVE_01IN                      = _UxGT("Przesuń co 0.1 cala");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Przesuń co $mm");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Przesuń co $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Przesuń co $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Predkość");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Stół Z");
   LSTR MSG_NOZZLE                         = _UxGT("Dysza");
@@ -374,14 +367,13 @@ namespace LanguageNarrow_pl {
   LSTR MSG_BLTOUCH_MODE_CHANGE            = _UxGT("UWAGA: Złe ustawienia mogą uszkodzić drukarkę. Kontynuować?");
   LSTR MSG_HOME_FIRST                     = _UxGT("Najpierw Home %s");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Offset Z");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Krok Z offsetu");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Przesuń dyszę do stołu");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Łącznie");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Błąd krańcówki");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Rozgrz. nieudane");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Rozgrz. nieudane");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Błąd temperatury");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("ZANIK TEMPERATURY");
-  LSTR MSG_THERMAL_RUNAWAY_BED            = _UxGT("ZANIK TEMP. STOŁU");
-  LSTR MSG_THERMAL_RUNAWAY_CHAMBER        = _UxGT("ZANIK TEMP.KOMORY");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("ZANIK TEMPERATURY");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Błąd: MAXTEMP");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Błąd: MINTEMP");
   LSTR MSG_HALTED                         = _UxGT("Drukarka zatrzym.");
@@ -473,7 +465,6 @@ namespace LanguageNarrow_pl {
   LSTR MSG_REVERSE_GRADIENT               = _UxGT("Odwrotny gradient");
 
   LSTR MSG_GAMES                          = _UxGT("Gry");
-
 
   LSTR MSG_EDIT_PASSWORD                  = _UxGT("Zmień hasło");
   LSTR MSG_LOGIN_REQUIRED                 = _UxGT("Wymagane zalogowanie");

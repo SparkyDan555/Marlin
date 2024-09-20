@@ -22,6 +22,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+/**
+ * cardreader.cpp - SD card / USB flash drive file handling interface
+ */
+
 #if HAS_MEDIA
 
 //#define DEBUG_CARDREADER
@@ -34,8 +38,6 @@
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "../lcd/e3v2/creality/dwin.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "../lcd/e3v2/proui/dwin.h"
 #endif
 
 #include "../module/planner.h"        // for synchronize
@@ -91,8 +93,8 @@ int16_t CardReader::nrItems = -1;
 
   int16_t CardReader::sort_count;
   #if ENABLED(SDSORT_GCODE)
-    bool CardReader::sort_alpha;
-    int CardReader::sort_folders;
+    SortFlag CardReader::sort_alpha;
+    int8_t CardReader::sort_folders;
     //bool CardReader::sort_reverse;
   #endif
 
@@ -160,8 +162,8 @@ CardReader::CardReader() {
   #if ENABLED(SDCARD_SORT_ALPHA)
     sort_count = 0;
     #if ENABLED(SDSORT_GCODE)
-      sort_alpha = true;
-      sort_folders = FOLDER_SORTING;
+      sort_alpha = TERN(SDSORT_REVERSE, AS_REV, AS_FWD);
+      sort_folders = SDSORT_FOLDERS;
       //sort_reverse = false;
     #endif
   #endif
@@ -186,7 +188,7 @@ CardReader::CardReader() {
 }
 
 //
-// Get a DOS 8.3 filename in its useful form
+// Get a DOS 8.3 filename in its useful form, e.g., "MYFILE  EXT" => "MYFILE.EXT"
 //
 char *createFilename(char * const buffer, const dir_t &p) {
   char *pos = buffer;
@@ -195,8 +197,12 @@ char *createFilename(char * const buffer, const dir_t &p) {
     if (i == 8) *pos++ = '.';
     *pos++ = p.name[i];
   }
-  *pos++ = 0;
+  *pos++ = '\0';
   return buffer;
+}
+
+inline bool extIsBIN(char *ext) {
+  return ext[0] == 'B' && ext[1] == 'I' && ext[2] == 'N';
 }
 
 //
@@ -217,9 +223,7 @@ bool CardReader::is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD,
   ) return false;
 
   flag.filenameIsDir = DIR_IS_SUBDIR(&p);               // We know it's a File or Folder
-  setBinFlag(p.name[8] == 'B' &&                        // List .bin files (a firmware file for flashing)
-             p.name[9] == 'I' &&
-             p.name[10]== 'N');
+  setBinFlag(extIsBIN((char *)&p.name[8]));             // List .bin files (a firmware file for flashing)
 
   return (
     flag.filenameIsDir                                  // All Directories are ok
@@ -446,8 +450,7 @@ void CardReader::ls(const uint8_t lsflags/*=0*/) {
       diveDir.close();
 
       if (longFilename[0]) {
-        strncpy_P(pathLong, longFilename, 63);
-        pathLong[63] = '\0';
+        strlcpy_P(pathLong, longFilename, 64);
         break;
       }
     }
@@ -488,9 +491,9 @@ void CardReader::mount() {
     #endif
   ) SERIAL_ECHO_MSG(STR_SD_INIT_FAIL);
   else if (!volume.init(driver))
-    SERIAL_ERROR_MSG(STR_SD_VOL_INIT_FAIL);
+    SERIAL_WARN_MSG(STR_SD_VOL_INIT_FAIL);
   else if (!root.openRoot(&volume))
-    SERIAL_ERROR_MSG(STR_SD_OPENROOT_FAIL);
+    SERIAL_WARN_MSG(STR_SD_OPENROOT_FAIL);
   else {
     flag.mounted = true;
     SERIAL_ECHO_MSG(STR_SD_CARD_OK);
@@ -500,7 +503,7 @@ void CardReader::mount() {
     cdroot();
   else {
     #if ANY(HAS_SD_DETECT, USB_FLASH_DRIVE_SUPPORT)
-      if (marlin_state != MF_INITIALIZING) LCD_ALERTMESSAGE(MSG_MEDIA_INIT_FAIL);
+      if (marlin_state != MarlinState::MF_INITIALIZING) LCD_ALERTMESSAGE(MSG_MEDIA_INIT_FAIL);
     #endif
   }
 
@@ -579,7 +582,7 @@ void CardReader::manage_media() {
  */
 void CardReader::release() {
   // Card removed while printing? Abort!
-  if (IS_SD_PRINTING())
+  if (isStillPrinting())
     abortFilePrintSoon();
   else
     endFilePrintNow();
@@ -588,6 +591,8 @@ void CardReader::release() {
   flag.workDirIsRoot = true;
   nrItems = -1;
   SERIAL_ECHO_MSG(STR_SD_CARD_RELEASED);
+
+  TERN_(NO_SD_DETECT, ui.refresh());
 }
 
 /**
@@ -826,8 +831,17 @@ void CardReader::removeFile(const char * const name) {
   #endif
 }
 
-void CardReader::report_status() {
-  if (isPrinting() || isPaused()) {
+void CardReader::report_status(TERN_(QUIETER_AUTO_REPORT_SD_STATUS, const bool isauto/*=false*/)) {
+  const bool has_job = isStillPrinting() || isPaused();
+
+  #if ENABLED(QUIETER_AUTO_REPORT_SD_STATUS)
+    static uint32_t old_sdpos = 0;
+    if (!has_job) old_sdpos = 0;
+    if (isauto && sdpos == old_sdpos) return;
+    if (has_job) old_sdpos = sdpos;
+  #endif
+
+  if (has_job) {
     SERIAL_ECHOPGM(STR_SD_PRINTING_BYTE, sdpos);
     SERIAL_CHAR('/');
     SERIAL_ECHOLN(filesize);
@@ -903,11 +917,11 @@ void CardReader::write_command(char * const buf) {
    * Select the newest file and ask the user if they want to print it.
    */
   bool CardReader::one_click_check() {
-    const bool found = selectNewestFile();
+    const bool found = selectNewestFile();    // Changes the current workDir if found
     if (found) {
       //SERIAL_ECHO_MSG(" OCP File: ", longest_filename(), "\n");
       //ui.init();
-      one_click_print();
+      one_click_print();                      // Restores workkDir to root (eventually)
     }
     return found;
   }
@@ -993,8 +1007,8 @@ void CardReader::selectFileByIndex(const int16_t nr) {
     if (nr < sort_count) {
       strcpy(filename, sortshort[nr]);
       strcpy(longFilename, sortnames[nr]);
-      flag.filenameIsDir = IS_DIR(nr);
-      setBinFlag(strcmp_P(strrchr(filename, '.'), PSTR(".BIN")) == 0);
+      TERN_(HAS_FOLDER_SORTING, flag.filenameIsDir = IS_DIR(nr));
+      setBinFlag(extIsBIN(strrchr(filename, '.') + 1));
       return;
     }
   #endif
@@ -1011,8 +1025,8 @@ void CardReader::selectFileByName(const char * const match) {
       if (strcasecmp(match, sortshort[nr]) == 0) {
         strcpy(filename, sortshort[nr]);
         strcpy(longFilename, sortnames[nr]);
-        flag.filenameIsDir = IS_DIR(nr);
-        setBinFlag(strcmp_P(strrchr(filename, '.'), PSTR(".BIN")) == 0);
+        TERN_(HAS_FOLDER_SORTING, flag.filenameIsDir = IS_DIR(nr));
+        setBinFlag(extIsBIN(strrchr(filename, '.') + 1));
         return;
       }
   #endif
@@ -1073,8 +1087,7 @@ const char* CardReader::diveToFile(const bool update_cwd, MediaFile* &inDirPtr, 
     // Isolate the next subitem name
     const uint8_t len = name_end - atom_ptr;
     char dosSubdirname[len + 1];
-    strncpy(dosSubdirname, atom_ptr, len);
-    dosSubdirname[len] = 0;
+    strlcpy(dosSubdirname, atom_ptr, len + 1);
 
     if (echo) SERIAL_ECHOLN(dosSubdirname);
 
@@ -1163,7 +1176,7 @@ void CardReader::cdroot() {
    * Get the name of a file in the working directory by sort-index
    */
   void CardReader::selectFileByIndexSorted(const int16_t nr) {
-    selectFileByIndex(TERN1(SDSORT_GCODE, sort_alpha) && (nr < sort_count) ? sort_order[nr] : nr);
+    selectFileByIndex(SortFlag(TERN1(SDSORT_GCODE, sort_alpha != AS_OFF)) && (nr < sort_count) ? sort_order[nr] : nr);
   }
 
   #if ENABLED(SDSORT_USES_RAM)
@@ -1179,7 +1192,7 @@ void CardReader::cdroot() {
       #endif
     #else
       // Copy filenames into the static array
-      #define _SET_SORTNAME(I) strncpy(sortnames[I], longest_filename(), SORTED_LONGNAME_MAXLEN)
+      #define _SET_SORTNAME(I) strlcpy(sortnames[I], longest_filename(), sizeof(sortnames[I]))
       #if SORTED_LONGNAME_MAXLEN == LONG_FILENAME_LENGTH
         // Short name sorting always use LONG_FILENAME_LENGTH with no trailing nul
         #define SET_SORTNAME(I) _SET_SORTNAME(I)
@@ -1210,7 +1223,7 @@ void CardReader::cdroot() {
     int16_t fileCnt = get_num_items();
 
     // Sorting may be turned off
-    if (TERN0(SDSORT_GCODE, !sort_alpha)) return;
+    if (TERN0(SDSORT_GCODE, sort_alpha == AS_OFF)) return;
 
     // If there are files, sort up to the limit
     if (fileCnt > 0) {
@@ -1239,9 +1252,9 @@ void CardReader::cdroot() {
         // Folder sorting needs 1 bit per entry for flags.
         #if HAS_FOLDER_SORTING
           #if ENABLED(SDSORT_DYNAMIC_RAM)
-            isDir = new uint8_t[(fileCnt + 7) >> 3];
+            isDir = new uint8_t[(fileCnt + 7) >> 3];  // Allocate space with 'new'
           #elif ENABLED(SDSORT_USES_STACK)
-            uint8_t isDir[(fileCnt + 7) >> 3];
+            uint8_t isDir[(fileCnt + 7) >> 3];        // Use stack in this scope
           #endif
         #endif
 
@@ -1291,18 +1304,18 @@ void CardReader::cdroot() {
             const int16_t o2 = sort_order[j + 1];
 
             // Compare names from the array or just the two buffered names
-            #if ENABLED(SDSORT_USES_RAM)
-              #define _SORT_CMP_NODIR() (strcasecmp(sortnames[o1], sortnames[o2]) > 0)
-            #else
-              #define _SORT_CMP_NODIR() (strcasecmp(name1, name2) > 0)
-            #endif
+            auto _sort_cmp_file = [](char * const n1, char * const n2) -> bool {
+              const bool sort = strcasecmp(n1, n2) > 0;
+              return (TERN(SDSORT_GCODE, card.sort_alpha == AS_REV, ENABLED(SDSORT_REVERSE))) ? !sort : sort;
+            };
+            #define _SORT_CMP_FILE() _sort_cmp_file(TERN(SDSORT_USES_RAM, sortnames[o1], name1), TERN(SDSORT_USES_RAM, sortnames[o2], name2))
 
             #if HAS_FOLDER_SORTING
               #if ENABLED(SDSORT_USES_RAM)
                 // Folder sorting needs an index and bit to test for folder-ness.
-                #define _SORT_CMP_DIR(fs) (IS_DIR(o1) == IS_DIR(o2) ? _SORT_CMP_NODIR() : IS_DIR(fs > 0 ? o1 : o2))
+                #define _SORT_CMP_DIR(fs) (IS_DIR(o1) == IS_DIR(o2) ? _SORT_CMP_FILE() : IS_DIR(fs > 0 ? o1 : o2))
               #else
-                #define _SORT_CMP_DIR(fs) ((dir1 == flag.filenameIsDir) ? _SORT_CMP_NODIR() : (fs > 0 ? dir1 : !dir1))
+                #define _SORT_CMP_DIR(fs) ((dir1 == flag.filenameIsDir) ? _SORT_CMP_FILE() : (fs > 0 ? dir1 : !dir1))
               #endif
             #endif
 
@@ -1318,12 +1331,12 @@ void CardReader::cdroot() {
             if (
               #if HAS_FOLDER_SORTING
                 #if ENABLED(SDSORT_GCODE)
-                  sort_folders ? _SORT_CMP_DIR(sort_folders) : _SORT_CMP_NODIR()
+                  sort_folders ? _SORT_CMP_DIR(sort_folders) : _SORT_CMP_FILE()
                 #else
-                  _SORT_CMP_DIR(FOLDER_SORTING)
+                  _SORT_CMP_DIR(SDSORT_FOLDERS)
                 #endif
               #else
-                _SORT_CMP_NODIR()
+                _SORT_CMP_FILE()
               #endif
             ) {
               // Reorder the index, indicate that sorting happened
@@ -1357,12 +1370,14 @@ void CardReader::cdroot() {
           #if ENABLED(SDSORT_DYNAMIC_RAM)
             sortnames = new char*[1];
             sortshort = new char*[1];
-            isDir = new uint8_t[1];
           #endif
           selectFileByIndex(0);
           SET_SORTNAME(0);
           SET_SORTSHORT(0);
-          isDir[0] = flag.filenameIsDir;
+          #if ALL(HAS_FOLDER_SORTING, SDSORT_DYNAMIC_RAM)
+            isDir = new uint8_t[1];
+            isDir[0] = flag.filenameIsDir;
+          #endif
         #endif
       }
 
@@ -1412,8 +1427,8 @@ void CardReader::fileHasFinished() {
 
   endFilePrintNow(TERN_(SD_RESORT, true));
 
-  flag.sdprintdone = true;        // Stop getting bytes from the SD card
-  marlin_state = MF_SD_COMPLETE;  // Tell Marlin to enqueue M1001 soon
+  flag.sdprintdone = true;                    // Stop getting bytes from the SD card
+  marlin_state = MarlinState::MF_SD_COMPLETE; // Tell Marlin to enqueue M1001 soon
 }
 
 #if ENABLED(AUTO_REPORT_SD_STATUS)

@@ -76,6 +76,7 @@ namespace LanguageNarrow_nl {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrude");
   LSTR MSG_RETRACT                        = _UxGT("Retract");
   LSTR MSG_MOVE_AXIS                      = _UxGT("As verplaatsen");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Z probe & Level");
   LSTR MSG_BED_LEVELING                   = _UxGT("Bed Leveling");
   LSTR MSG_LEVEL_BED                      = _UxGT("Level bed");
 
@@ -88,10 +89,8 @@ namespace LanguageNarrow_nl {
   LSTR MSG_MOVE_E                         = _UxGT("Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Verplaats $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Verplaats 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Verplaats 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Verplaats 10mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Verplaats 100mm");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Verplaats $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Verplaats $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Snelheid");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bed Z");
   LSTR MSG_NOZZLE                         = _UxGT("Nozzle");
@@ -154,14 +153,15 @@ namespace LanguageNarrow_nl {
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");
   LSTR MSG_HOME_FIRST                     = _UxGT("Home %s Eerst");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Offset"); // accepted English term in Dutch
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Babystep Probe Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystap X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystap Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Babystap Z");
   LSTR MSG_BABYSTEP_N                     = _UxGT("Babystap @");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Endstop afbr.");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Voorverw. fout");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Voorverw. fout");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Redun. temp fout");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("Therm. wegloop");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("Therm. wegloop");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Err: Max. temp");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err: Min. temp");
   LSTR MSG_HALTED                         = _UxGT("PRINTER GESTOPT");
