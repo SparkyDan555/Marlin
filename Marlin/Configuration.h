@@ -3085,13 +3085,12 @@
 // ANET and Tronxy 128×64 Full Graphics Controller as used on Anet A6
 //
 //#define ANET_FULL_GRAPHICS_LCD
-#define ANET_FULL_GRAPHICS_LCD_ALT_WIRING
-#define NO_CONTROLLER_CUSTOM_WIRING_WARNING
 
 //
 // GUCOCO CTC 128×64 Full Graphics Controller as used on GUCOCO CTC A10S
 //
-//#define CTC_A10S_A13
+#define CTC_A10S_A13
+#define NO_CONTROLLER_CUSTOM_WIRING_WARNING
 
 //
 // AZSMZ 12864 LCD with SD
