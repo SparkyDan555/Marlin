@@ -1553,7 +1553,7 @@
   #define LCD_INFO_MENU
   #if ENABLED(LCD_INFO_MENU)
     //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
-    //#define BUILD_INFO_MENU_ITEM           // Add a menu item to display the build date and time
+    #define BUILD_INFO_MENU_ITEM           // Add a menu item to display the build date and time
   #endif
 
   /**
@@ -1622,7 +1622,7 @@
   #define SOUND_ON_DEFAULT    // Buzzer/speaker default enabled state
 
   #if ENABLED(U8GLIB_SSD1309)
-    //#define LCD_DOUBLE_BUFFER           // Optimize display updates. Costs ~1K of SRAM.
+    #define LCD_DOUBLE_BUFFER           // Optimize display updates. Costs ~1K of SRAM.
   #endif
 
   #if HAS_WIRED_LCD
@@ -2054,10 +2054,10 @@
   //#define OVERLAY_GFX_REVERSE       // Swap the CW/CCW indicators in the graphics overlay
 
   // Frivolous Game Options
-  //#define MARLIN_BRICKOUT
-  //#define MARLIN_INVADERS
-  //#define MARLIN_SNAKE
-  //#define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
+  #define MARLIN_BRICKOUT
+  #define MARLIN_INVADERS
+  #define MARLIN_SNAKE
+  #define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
 #endif
 
 //
