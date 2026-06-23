@@ -31,7 +31,6 @@
  */
 
 #include "tmc_util.h"
-#include "../MarlinCore.h"
 
 #include "../module/stepper/indirection.h"
 #include "../module/printcounter.h"
@@ -89,7 +88,9 @@
 
   #if HAS_TMCX1X0
 
-    static uint32_t get_pwm_scale(TMC2130Stepper &st) { return st.PWM_SCALE(); }
+    #if ENABLED(TMC_DEBUG)
+      static uint32_t get_pwm_scale(TMC2130Stepper &st) { return st.PWM_SCALE(); }
+    #endif
 
     static TMC_driver_data get_driver_data(TMC2130Stepper &st) {
       constexpr uint8_t OT_bp = 25, OTPW_bp = 26;
@@ -148,7 +149,9 @@
 
   #if HAS_DRIVER(TMC2240)
 
-    static uint32_t get_pwm_scale(TMC2240Stepper &st) { return st.PWM_SCALE(); }
+    #if ENABLED(TMC_DEBUG)
+      static uint32_t get_pwm_scale(TMC2240Stepper &st) { return st.PWM_SCALE(); }
+    #endif
 
     static TMC_driver_data get_driver_data(TMC2240Stepper &st) {
       constexpr uint8_t OT_bp = 25, OTPW_bp = 26;
@@ -207,7 +210,9 @@
 
   #if HAS_TMC220x
 
-    static uint32_t get_pwm_scale(TMC2208Stepper &st) { return st.pwm_scale_sum(); }
+    #if ENABLED(TMC_DEBUG)
+      static uint32_t get_pwm_scale(TMC2208Stepper &st) { return st.pwm_scale_sum(); }
+    #endif
 
     static TMC_driver_data get_driver_data(TMC2208Stepper &st) {
       constexpr uint8_t OTPW_bp = 0, OT_bp = 1;
@@ -242,7 +247,9 @@
 
   #if HAS_DRIVER(TMC2660)
 
-    static uint32_t get_pwm_scale(TMC2660Stepper) { return 0; }
+    #if ENABLED(TMC_DEBUG)
+      static uint32_t get_pwm_scale(TMC2660Stepper) { return 0; }
+    #endif
 
     static TMC_driver_data get_driver_data(TMC2660Stepper &st) {
       constexpr uint8_t OT_bp = 1, OTPW_bp = 2;
@@ -275,7 +282,7 @@
       if (data.is_s2g) SERIAL_ECHOLNPGM("coil short circuit");
       TERN_(TMC_DEBUG, tmc_report_all());
       TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_DriverError_L, ID_DriverError_D));
-      kill(F("Driver error"));
+      marlin.kill(F("Driver error"));
     }
   #endif
 
@@ -290,12 +297,13 @@
     SString<50>(F(" driver overtemperature warning! ("), st.getMilliamps(), F("mA)")).echoln();
   }
 
-  template<typename TMC>
-  void report_polled_driver_data(TMC &st, const TMC_driver_data &data) {
-    const uint32_t pwm_scale = get_pwm_scale(st);
-    st.printLabel();
-    SString<60> report(':', pwm_scale);
-    #if ENABLED(TMC_DEBUG)
+  #if ENABLED(TMC_DEBUG)
+
+    template<typename TMC>
+    void report_polled_driver_data(TMC &st, const TMC_driver_data &data) {
+      const uint32_t pwm_scale = get_pwm_scale(st);
+      st.printLabel();
+      SString<60> report(':', pwm_scale);
       #if HAS_TMCX1X0_OR_2240 || HAS_TMC220x
         report.append('/', data.cs_actual);
       #endif
@@ -306,22 +314,21 @@
         else
           report += '-';
       #endif
-    #endif
-    report += '|';
-    if (st.error_count)       report += 'E'; // Error
-    if (data.is_ot)           report += 'O'; // Over-temperature
-    if (data.is_otpw)         report += 'W'; // over-temperature pre-Warning
-    #if ENABLED(TMC_DEBUG)
+      report += '|';
+      if (st.error_count)     report += 'E'; // Error
+      if (data.is_ot)         report += 'O'; // Over-temperature
+      if (data.is_otpw)       report += 'W'; // over-temperature pre-Warning
       if (data.is_stall)      report += 'G'; // stallGuard
       if (data.is_stealth)    report += 'T'; // stealthChop
       if (data.is_standstill) report += 'I'; // standstIll
-    #endif
-    if (st.flag_otpw)         report += 'F'; // otpw Flag
-    report += '|';
-    if (st.otpw_count > 0)    report += st.otpw_count;
-    report += '\t';
-    report.echo();
-  }
+      if (st.flag_otpw)       report += 'F'; // otpw Flag
+      report += '|';
+      if (st.otpw_count > 0)  report += st.otpw_count;
+      report += '\t';
+      report.echo();
+    }
+
+  #endif // TMC_DEBUG
 
   #if CURRENT_STEP_DOWN > 0
 
@@ -965,14 +972,14 @@
     TMC_REPORT("[mm/s]\t",           TMC_TPWMTHRS_MMS);
     TMC_REPORT("OT prewarn",         TMC_DEBUG_OTPW);
     #if ENABLED(MONITOR_DRIVER_STATUS)
-      TMC_REPORT("triggered\n OTP\t", TMC_OTPW_TRIGGERED);
+      TMC_REPORT("OTPW trig.\t",     TMC_OTPW_TRIGGERED);
     #endif
 
     #if HAS_TMC220x
-      TMC_REPORT("pwm scale sum",     TMC_PWM_SCALE_SUM);
-      TMC_REPORT("pwm scale auto",    TMC_PWM_SCALE_AUTO);
-      TMC_REPORT("pwm offset auto",   TMC_PWM_OFS_AUTO);
-      TMC_REPORT("pwm grad auto",     TMC_PWM_GRAD_AUTO);
+      TMC_REPORT("pwm scale sum",    TMC_PWM_SCALE_SUM);
+      TMC_REPORT("pwm scale auto",   TMC_PWM_SCALE_AUTO);
+      TMC_REPORT("pwm offset auto",  TMC_PWM_OFS_AUTO);
+      TMC_REPORT("pwm grad auto",    TMC_PWM_GRAD_AUTO);
     #endif
 
     TMC_REPORT("off time",           TMC_TOFF);
@@ -1013,7 +1020,7 @@
       TMC_REPORT("Supply (v)",       TMC_VSUPPLY);
       TMC_REPORT("Temp (°C)",        TMC_TEMP);
       TMC_REPORT("OT pre warn (°C)", TMC_OVERTEMP);
-      TMC_REPORT("OV theshold (v)",  TMC_OVERVOLT_THD);
+      TMC_REPORT("OV threshold (v)", TMC_OVERVOLT_THD);
     #endif
     SERIAL_EOL();
   }
